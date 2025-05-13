@@ -383,6 +383,7 @@ class Pterodactyl extends Module
         foreach ($environment_variables as $environment_variable => $value) {
             foreach ($return as $item) {
                 if ($item['key'] === strtolower($environment_variable)) {
+                    // When adding a service, the fields provided by the user should take priority
                     continue 2;
                 }
             }
@@ -559,6 +560,13 @@ class Pterodactyl extends Module
             $service_fields
         );
         foreach ($environment_variables as $environment_variable => $value) {
+            // When editing a service, the existing fields should take priority
+            foreach ($return as $key => $item) {
+                if ($item['key'] === strtolower($environment_variable)) {
+                    unset($return[$key]);
+                }
+            }
+
             $return[] = [
                 'key' => strtolower($environment_variable),
                 'value' => $value,
