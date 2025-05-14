@@ -559,9 +559,9 @@ class Pterodactyl extends Module
             $service_fields
         );
         foreach ($environment_variables as $environment_variable => $value) {
-            foreach ($return as $item) {
+            foreach ($return as $key => $item) {
                 if ($item['key'] === strtolower($environment_variable)) {
-                    continue 2;
+                    unset($return[$key]);
                 }
             }
 
