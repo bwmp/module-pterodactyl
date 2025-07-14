@@ -237,9 +237,20 @@ class PterodactylService
      */
     public function getFields($pterodactylEgg, $package, $vars = null, $admin = false)
     {
-        Loader::loadHelpers($this, ['Html']);
+        Loader::loadHelpers($this, ['Html', 'Form']);
 
         $fields = new ModuleFields();
+
+        // Fetch egg enviromental variables
+        if ($pterodactylEgg) {
+            $variables = [];
+            $environment = $pterodactylEgg->attributes->relationships->variables->data ?? [];
+
+            foreach ($environment as $variable) {
+                $key = strtolower($variable->attributes->env_variable);
+                $variables[$key] = $variable->attributes->default_value ?? '';
+            }
+        }
 
         if ($admin) {
             // Set the server ID
@@ -260,36 +271,40 @@ class PterodactylService
         }
 
         // Set the server name
-        $serverName = $fields->label(
-            Language::_('PterodactylService.service_fields.server_name', true),
-            'server_name'
-        );
-        $serverName->attach(
-            $fields->fieldText(
-                'server_name',
-                (isset($vars->server_name) ? $vars->server_name : null),
-                ['id' => 'server_name']
-            )
-        );
-        $tooltip = $fields->tooltip(Language::_('PterodactylService.service_fields.tooltip.server_name', true));
-        $serverName->attach($tooltip);
-        $fields->setField($serverName);
+        if (!array_key_exists('server_name', $variables) || !$admin) {
+            $serverName = $fields->label(
+                Language::_('PterodactylService.service_fields.server_name', true),
+                'server_name'
+            );
+            $serverName->attach(
+                $fields->fieldText(
+                    'server_name',
+                    (isset($vars->server_name) ? $vars->server_name : null),
+                    ['id' => 'server_name']
+                )
+            );
+            $tooltip = $fields->tooltip(Language::_('PterodactylService.service_fields.tooltip.server_name', true));
+            $serverName->attach($tooltip);
+            $fields->setField($serverName);
+        }
 
         // Set the server description
-        $serverDescription = $fields->label(
-            Language::_('PterodactylService.service_fields.server_description', true),
-            'server_description'
-        );
-        $serverDescription->attach(
-            $fields->fieldText(
-                'server_description',
-                (isset($vars->server_description) ? $vars->server_description : null),
-                ['id' => 'server_description']
-            )
-        );
-        $tooltip = $fields->tooltip(Language::_('PterodactylService.service_fields.tooltip.server_description', true));
-        $serverDescription->attach($tooltip);
-        $fields->setField($serverDescription);
+        if (!array_key_exists('server_description', $variables) || !$admin) {
+            $serverDescription = $fields->label(
+                Language::_('PterodactylService.service_fields.server_description', true),
+                'server_description'
+            );
+            $serverDescription->attach(
+                $fields->fieldText(
+                    'server_description',
+                    (isset($vars->server_description) ? $vars->server_description : null),
+                    ['id' => 'server_description']
+                )
+            );
+            $tooltip = $fields->tooltip(Language::_('PterodactylService.service_fields.tooltip.server_description', true));
+            $serverDescription->attach($tooltip);
+            $fields->setField($serverDescription);
+        }
 
         if ($pterodactylEgg) {
             // Get service fields from the egg

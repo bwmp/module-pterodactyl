@@ -381,6 +381,12 @@ class Pterodactyl extends Module
 
         $environment_variables = $service_helper->getEnvironmentVariables($vars, $package, $pterodactyl_egg);
         foreach ($environment_variables as $environment_variable => $value) {
+            foreach ($return as $item) {
+                if ($item['key'] === strtolower($environment_variable)) {
+                    continue 2;
+                }
+            }
+
             $return[] = [
                 'key' => strtolower($environment_variable),
                 'value' => $value,
@@ -553,6 +559,12 @@ class Pterodactyl extends Module
             $service_fields
         );
         foreach ($environment_variables as $environment_variable => $value) {
+            foreach ($return as $key => $item) {
+                if ($item['key'] === strtolower($environment_variable)) {
+                    unset($return[$key]);
+                }
+            }
+
             $return[] = [
                 'key' => strtolower($environment_variable),
                 'value' => $value,
