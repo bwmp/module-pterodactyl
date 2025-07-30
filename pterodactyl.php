@@ -424,6 +424,7 @@ class Pterodactyl extends Module
         $parent_service = null
     ) {
         $service_fields = $this->serviceFieldsToObject($service->fields);
+        Loader::loadModels($this, ['Clients']);
 
         $this->validateServiceEdit($service, $vars);
         if ($this->Input->errors()) {
@@ -450,6 +451,11 @@ class Pterodactyl extends Module
         if ($vars['use_module'] == 'true') {
             // Load user account
             $pterodactyl_user = $this->apiRequest('Users', 'getByExternalID', ['bl-' . $service->client_id]);
+
+            if(empty($pterodactyl_user)) {
+                $client = $this->Clients->get($service->client_id);
+                $pterodactyl_user = $this->apiRequest('Users', 'getByEmail', [$client->email]);
+            }
 
             // Load the server
             $pterodactyl_server = $this->getServer($service);
